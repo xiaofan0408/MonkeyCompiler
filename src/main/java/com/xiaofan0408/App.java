@@ -1,6 +1,8 @@
 package com.xiaofan0408;
 
 import com.xiaofan0408.lexer.Lexer;
+import com.xiaofan0408.parser.Parser;
+import com.xiaofan0408.parser.ast.Program;
 import com.xiaofan0408.repl.Repl;
 import com.xiaofan0408.token.Token;
 import com.xiaofan0408.token.TokenType;
@@ -23,7 +25,20 @@ public class App
 //            System.out.println(token);
 //            token = lexer.nextToken();
 //        }
-        Repl repl = new Repl();
-        repl.start();
+//        Repl repl = new Repl();
+//        repl.start();
+
+        String input = "let x  5;\n" +
+                "let y = 10;\n" +
+                "let foobar = 838383;\n";
+        Lexer lexer = new Lexer();
+        lexer.New(input);
+        Parser parser = new Parser(lexer);
+        Program program = parser.parseProgram();
+
+        parser.getErrors().stream().forEach((string) -> {
+            System.out.println(string);
+        });
+
     }
 }
