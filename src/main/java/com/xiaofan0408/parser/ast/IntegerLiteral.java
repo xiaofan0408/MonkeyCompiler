@@ -1,22 +1,20 @@
 package com.xiaofan0408.parser.ast;
 
 import com.xiaofan0408.token.Token;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+
 @Getter
 @Setter
-public class Identifer implements Expression{
+@Builder
+public class IntegerLiteral implements Expression{
 
     private Token token;
 
-    private String value;
-
-
-    public Identifer(Token token,String value){
-        this.token = token;
-        this.value = value;
-    }
+    private BigDecimal value;
 
     @Override
     public Expression expressionNode() {
@@ -25,11 +23,11 @@ public class Identifer implements Expression{
 
     @Override
     public String tokenLiteral() {
-        return this.token.getLiteral();
+        return token.getLiteral();
     }
 
     @Override
     public String string() {
-        return this.value;
+        return token.getLiteral();
     }
 }

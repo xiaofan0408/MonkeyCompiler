@@ -5,4 +5,5 @@ package com.xiaofan0408.parser.ast;
  */
 public interface Node {
     String tokenLiteral();
+    String string();
 }

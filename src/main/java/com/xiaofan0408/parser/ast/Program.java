@@ -22,4 +22,13 @@ public class Program implements Node{
             return "";
         }
     }
+
+    @Override
+    public String string() {
+        StringBuffer stringBuffer = new StringBuffer();
+        for (Statement statement:statements) {
+            stringBuffer.append(statement.string());
+        }
+        return stringBuffer.toString();
+    }
 }

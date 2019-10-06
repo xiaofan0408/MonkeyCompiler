@@ -28,4 +28,17 @@ public class LetStatement implements Statement{
     public String tokenLiteral() {
         return null;
     }
+
+    @Override
+    public String string() {
+        StringBuffer stringBuffer = new StringBuffer();
+        stringBuffer.append(this.token.getLiteral()+" ");
+        stringBuffer.append(this.name.string());
+        stringBuffer.append("=");
+        if (this.value != null) {
+            stringBuffer.append(value.string());
+        }
+        stringBuffer.append(";");
+        return stringBuffer.toString();
+    }
 }

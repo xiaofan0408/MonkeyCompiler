@@ -22,11 +22,7 @@ public class AppTest
         lexer.New(input);
         Parser parser = new Parser(lexer);
         Program program = parser.parseProgram();
-
-        parser.getErrors().stream().forEach((string) -> {
-            System.out.println(string);
-        });
-
+        System.out.println(program.string());
     }
 
 }
