@@ -28,17 +28,29 @@ public class App
 //        Repl repl = new Repl();
 //        repl.start();
 
-        String input = "let x  5;\n" +
+        String input = "let x = 5;\n" +
                 "let y = 10;\n" +
-                "let foobar = 838383;\n";
+                "let foobar = 838383;\n" +
+                "let flag = true;\n" +
+                "let f = false;\n" +
+                "return false;\n" +
+                "true != true;\n" +
+                " ( 5 + 5 ) * 2;\n" +
+                "let foobar = if (x >y){x}else{y};";
         Lexer lexer = new Lexer();
         lexer.New(input);
         Parser parser = new Parser(lexer);
         Program program = parser.parseProgram();
 
-        parser.getErrors().stream().forEach((string) -> {
-            System.out.println(string);
-        });
+        if (parser.getErrors().size() > 0 ) {
+            parser.getErrors().stream().forEach((string) -> {
+                System.out.println(string);
+            });
+        } else {
+            program.getStatements().stream().forEach((statement) ->{
+                System.out.println(statement.string());
+            });
+        }
 
     }
 }

@@ -90,6 +90,17 @@ public class Lexer {
                 tok = new Token(TokenType.PLUS, Character.toString(this.ch));
                 break;
             }
+            case '-':{
+                tok = new Token(TokenType.MINUS, Character.toString(this.ch));
+                break;
+            }
+            case '*':{
+                tok = new Token(TokenType.ASTERISK, Character.toString(this.ch));
+                break;
+            } case '/':{
+                tok = new Token(TokenType.SLASH, Character.toString(this.ch));
+                break;
+            }
             case '{':{
                 tok = new Token(TokenType.LBRACE, Character.toString(this.ch));
                 break;

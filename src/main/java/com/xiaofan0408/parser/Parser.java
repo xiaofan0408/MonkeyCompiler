@@ -5,10 +5,7 @@ import com.xiaofan0408.parser.ast.*;
 import com.xiaofan0408.parser.expression.InfixParseFn;
 import com.xiaofan0408.parser.expression.ParseFnConstant;
 import com.xiaofan0408.parser.expression.PrefixParseFn;
-import com.xiaofan0408.parser.expression.impl.IdentiferParseFn;
-import com.xiaofan0408.parser.expression.impl.InfixExpressionParseFn;
-import com.xiaofan0408.parser.expression.impl.IntegerParseFn;
-import com.xiaofan0408.parser.expression.impl.PrefixExpressionParseFn;
+import com.xiaofan0408.parser.expression.impl.*;
 import com.xiaofan0408.token.Token;
 import com.xiaofan0408.token.TokenType;
 import lombok.Getter;
@@ -38,6 +35,9 @@ public class Parser {
         ParseFnConstant.registerPrefix(TokenType.INT, new IntegerParseFn(this));
         ParseFnConstant.registerPrefix(TokenType.BANG, new PrefixExpressionParseFn(this));
         ParseFnConstant.registerPrefix(TokenType.MINUS, new PrefixExpressionParseFn(this));
+        ParseFnConstant.registerPrefix(TokenType.TRUE,new BooleanParseFn(this));
+        ParseFnConstant.registerPrefix(TokenType.FALSE,new BooleanParseFn(this));
+        ParseFnConstant.registerPrefix(TokenType.LPAREN, new GroupedParseFn(this));
 
         ParseFnConstant.registerInfix(TokenType.PLUS, new InfixExpressionParseFn(this));
         ParseFnConstant.registerInfix(TokenType.MINUS, new InfixExpressionParseFn(this));
@@ -111,6 +111,7 @@ public class Parser {
             if (infixParseFn == null) {
                 return leftExp;
             }
+            nextToken();
             leftExp =  infixParseFn.apply(leftExp);
         }
         return leftExp;
@@ -119,6 +120,7 @@ public class Parser {
     private Statement parseReturnStatement() {
         Statement statement = ReturnStatement.builder().token(this.curToken).build();
         this.nextToken();
+        ((ReturnStatement)statement).setReturnValue(parseExpression(ParserConstant.LOWEST));
         while (!this.curTokenIs(TokenType.SEMICOLON)) {
             this.nextToken();
         }
@@ -137,6 +139,8 @@ public class Parser {
         if (!this.expectPeek(TokenType.ASSIGN)) {
             return null;
         }
+        nextToken();
+        ((LetStatement) statement).setValue(parseExpression(ParserConstant.LOWEST));
 
         while (!this.curTokenIs(TokenType.SEMICOLON)) {
             this.nextToken();
@@ -144,11 +148,11 @@ public class Parser {
         return statement;
     }
 
-    private boolean curTokenIs(TokenType tokenType) {
+    public boolean curTokenIs(TokenType tokenType) {
         return this.curToken.getType() == tokenType;
     }
 
-    private boolean expectPeek(TokenType ident) {
+    public boolean expectPeek(TokenType ident) {
         if (this.peekTokenIs(ident)) {
             this.nextToken();
             return true;
