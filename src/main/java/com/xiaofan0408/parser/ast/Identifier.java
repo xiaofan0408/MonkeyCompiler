@@ -6,14 +6,14 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class Identifer implements Expression{
+public class Identifier implements Expression{
 
     private Token token;
 
     private String value;
 
 
-    public Identifer(Token token,String value){
+    public Identifier(Token token, String value){
         this.token = token;
         this.value = value;
     }

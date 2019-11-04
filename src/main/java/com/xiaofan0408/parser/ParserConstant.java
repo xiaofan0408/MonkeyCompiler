@@ -32,6 +32,7 @@ public class ParserConstant {
         precedences.put(TokenType.MINUS,SUM);
         precedences.put(TokenType.SLASH, PRODUCT);
         precedences.put(TokenType.ASTERISK,PRODUCT);
+        precedences.put(TokenType.LPAREN, CALL);
     }
 
 }

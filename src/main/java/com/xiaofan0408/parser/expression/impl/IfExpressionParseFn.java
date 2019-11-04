@@ -39,7 +39,7 @@ public class IfExpressionParseFn implements PrefixParseFn {
             return null;
         }
 
-        BlockStatement blockStatement = parser.parseBlockStatment();
+        BlockStatement blockStatement = parser.parseBlockStatement();
         ((IfExpression) expression).setConsequence(blockStatement);
 
         if (parser.peekTokenIs(TokenType.ELSE)) {
@@ -48,7 +48,7 @@ public class IfExpressionParseFn implements PrefixParseFn {
             if (!parser.expectPeek(TokenType.LBRACE)) {
                 return null;
             }
-            BlockStatement alternativeBlockStatement = parser.parseBlockStatment();
+            BlockStatement alternativeBlockStatement = parser.parseBlockStatement();
             ((IfExpression) expression).setAlternative(alternativeBlockStatement);
         }
 

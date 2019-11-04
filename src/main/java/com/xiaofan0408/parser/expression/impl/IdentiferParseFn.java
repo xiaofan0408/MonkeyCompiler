@@ -2,7 +2,7 @@ package com.xiaofan0408.parser.expression.impl;
 
 import com.xiaofan0408.parser.Parser;
 import com.xiaofan0408.parser.ast.Expression;
-import com.xiaofan0408.parser.ast.Identifer;
+import com.xiaofan0408.parser.ast.Identifier;
 import com.xiaofan0408.parser.expression.PrefixParseFn;
 
 public class IdentiferParseFn implements PrefixParseFn {
@@ -15,6 +15,6 @@ public class IdentiferParseFn implements PrefixParseFn {
 
     @Override
     public Expression apply() {
-        return new Identifer(parser.getCurToken(),parser.getCurToken().getLiteral());
+        return new Identifier(parser.getCurToken(),parser.getCurToken().getLiteral());
     }
 }

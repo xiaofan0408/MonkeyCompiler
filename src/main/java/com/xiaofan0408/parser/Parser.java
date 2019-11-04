@@ -39,6 +39,7 @@ public class Parser {
         ParseFnConstant.registerPrefix(TokenType.FALSE,new BooleanParseFn(this));
         ParseFnConstant.registerPrefix(TokenType.LPAREN, new GroupedParseFn(this));
         ParseFnConstant.registerPrefix(TokenType.IF,new IfExpressionParseFn(this));
+        ParseFnConstant.registerPrefix(TokenType.FUNCTION,new FunctionParseFn(this));
 
         ParseFnConstant.registerInfix(TokenType.PLUS, new InfixExpressionParseFn(this));
         ParseFnConstant.registerInfix(TokenType.MINUS, new InfixExpressionParseFn(this));
@@ -48,6 +49,7 @@ public class Parser {
         ParseFnConstant.registerInfix(TokenType.NOT_EQ, new InfixExpressionParseFn(this));
         ParseFnConstant.registerInfix(TokenType.LT, new InfixExpressionParseFn(this));
         ParseFnConstant.registerInfix(TokenType.GT, new InfixExpressionParseFn(this));
+        ParseFnConstant.registerInfix(TokenType.LPAREN,new CallParseFn(this));
     }
 
     public List<String> getErrors(){
@@ -99,7 +101,7 @@ public class Parser {
         return statement;
     }
 
-    public BlockStatement parseBlockStatment() {
+    public BlockStatement parseBlockStatement() {
         BlockStatement blockStatement = BlockStatement.builder().token(this.curToken).build();
         blockStatement.setStatements(new ArrayList<>());
         nextToken();
@@ -111,6 +113,56 @@ public class Parser {
             nextToken();
         }
         return blockStatement;
+    }
+
+    public List<Identifier> parseFunctionParameters() {
+        List<Identifier> identifiers = new ArrayList<>();
+
+        if (peekTokenIs(TokenType.RPAREN)) {
+            nextToken();
+            return identifiers;
+        }
+
+        nextToken();
+
+        Identifier ident = new Identifier(curToken,curToken.getLiteral());
+        identifiers.add(ident);
+
+        while (peekTokenIs(TokenType.COMMA)) {
+            nextToken();
+            nextToken();
+            identifiers.add( new Identifier(curToken,curToken.getLiteral()));
+        }
+
+        if (!expectPeek(TokenType.RPAREN)) {
+            return null;
+        }
+
+        return identifiers;
+    }
+
+    public List<Expression> parseCallArguments() {
+        List<Expression> args = new ArrayList<>();
+
+        if (peekTokenIs(TokenType.RPAREN)) {
+            nextToken();
+            return args;
+        }
+
+        nextToken();
+        args.add(parseExpression(ParserConstant.LOWEST));
+
+        while (peekTokenIs(TokenType.COMMA)) {
+            nextToken();
+            nextToken();
+            args.add(parseExpression(ParserConstant.LOWEST));
+        }
+
+        if (!expectPeek(TokenType.RPAREN)) {
+            return null;
+        }
+
+        return args;
     }
 
     public Expression parseExpression(int precedence) {
@@ -132,7 +184,7 @@ public class Parser {
         return leftExp;
     }
 
-    private Statement parseReturnStatement() {
+    public Statement parseReturnStatement() {
         Statement statement = ReturnStatement.builder().token(this.curToken).build();
         this.nextToken();
         ((ReturnStatement)statement).setReturnValue(parseExpression(ParserConstant.LOWEST));
@@ -142,14 +194,14 @@ public class Parser {
         return statement;
     }
 
-    private Statement parseLetStatement() {
+    public Statement parseLetStatement() {
         Statement statement = LetStatement.builder().token(this.curToken).build();
 
         if (!this.expectPeek(TokenType.IDENT)) {
             return null;
         }
-        Identifer identifer = new Identifer(this.curToken,this.curToken.getLiteral());
-        ((LetStatement) statement).setName(identifer);
+        Identifier identifier = new Identifier(this.curToken,this.curToken.getLiteral());
+        ((LetStatement) statement).setName(identifier);
 
         if (!this.expectPeek(TokenType.ASSIGN)) {
             return null;

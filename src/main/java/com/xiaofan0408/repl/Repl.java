@@ -1,9 +1,12 @@
 package com.xiaofan0408.repl;
 
 import com.xiaofan0408.lexer.Lexer;
+import com.xiaofan0408.parser.Parser;
+import com.xiaofan0408.parser.ast.Program;
 import com.xiaofan0408.token.Token;
 import com.xiaofan0408.token.TokenType;
 
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -25,12 +28,20 @@ public class Repl {
                 return;
             }
             lexer.New(line);
-            Token token = lexer.nextToken();
-            while (token.getType()!= TokenType.EOF){
-                System.out.println(token);
-                token = lexer.nextToken();
-            }
+            Parser parser = new Parser(lexer);
+           Program program = parser.parseProgram();
+           if (parser.getErrors().size() > 0) {
+               printError(parser.getErrors());
+               continue;
+           }
+           System.out.println(program.string());
         }
+    }
+
+    private void printError(List<String> errorList) {
+        errorList.stream().forEach((string) -> {
+            System.out.println(string);
+        });
     }
 
 }

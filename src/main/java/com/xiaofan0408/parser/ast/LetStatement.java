@@ -14,7 +14,7 @@ public class LetStatement implements Statement{
 
     private Token token;
 
-    private Identifer name;
+    private Identifier name;
 
     private Expression value;
 
