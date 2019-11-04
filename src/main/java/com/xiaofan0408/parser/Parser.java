@@ -38,6 +38,7 @@ public class Parser {
         ParseFnConstant.registerPrefix(TokenType.TRUE,new BooleanParseFn(this));
         ParseFnConstant.registerPrefix(TokenType.FALSE,new BooleanParseFn(this));
         ParseFnConstant.registerPrefix(TokenType.LPAREN, new GroupedParseFn(this));
+        ParseFnConstant.registerPrefix(TokenType.IF,new IfExpressionParseFn(this));
 
         ParseFnConstant.registerInfix(TokenType.PLUS, new InfixExpressionParseFn(this));
         ParseFnConstant.registerInfix(TokenType.MINUS, new InfixExpressionParseFn(this));
@@ -96,6 +97,20 @@ public class Parser {
             nextToken();
         }
         return statement;
+    }
+
+    public BlockStatement parseBlockStatment() {
+        BlockStatement blockStatement = BlockStatement.builder().token(this.curToken).build();
+        blockStatement.setStatements(new ArrayList<>());
+        nextToken();
+        while (!curTokenIs(TokenType.RBRACE)){
+            Statement statement = parseStatement();
+            if (statement != null) {
+                blockStatement.getStatements().add(statement);
+            }
+            nextToken();
+        }
+        return blockStatement;
     }
 
     public Expression parseExpression(int precedence) {
@@ -162,7 +177,7 @@ public class Parser {
         }
     }
 
-    private boolean peekTokenIs(TokenType tokenType) {
+    public boolean peekTokenIs(TokenType tokenType) {
         return this.peekToken.getType() == tokenType;
     }
 
