@@ -1,6 +1,8 @@
 package com.xiaofan0408.repl;
 
+import com.xiaofan0408.evaluator.Evaluator;
 import com.xiaofan0408.lexer.Lexer;
+import com.xiaofan0408.object.MObject;
 import com.xiaofan0408.parser.Parser;
 import com.xiaofan0408.parser.ast.Program;
 import com.xiaofan0408.token.Token;
@@ -34,7 +36,11 @@ public class Repl {
                printError(parser.getErrors());
                continue;
            }
-           System.out.println(program.string());
+           Evaluator evaluator = new Evaluator();
+           MObject result = evaluator.eval(program);
+           if (result != null) {
+               System.out.println(result.inspect());
+           }
         }
     }
 
