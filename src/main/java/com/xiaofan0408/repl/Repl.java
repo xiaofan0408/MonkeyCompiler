@@ -2,12 +2,14 @@ package com.xiaofan0408.repl;
 
 import com.xiaofan0408.evaluator.Evaluator;
 import com.xiaofan0408.lexer.Lexer;
+import com.xiaofan0408.object.Environment;
 import com.xiaofan0408.object.MObject;
 import com.xiaofan0408.parser.Parser;
 import com.xiaofan0408.parser.ast.Program;
 import com.xiaofan0408.token.Token;
 import com.xiaofan0408.token.TokenType;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
 
@@ -22,6 +24,7 @@ public class Repl {
 
     public void start() {
         Scanner scanner = new Scanner(System.in);
+        Environment env = new Environment(new HashMap<>());
         Lexer lexer = new Lexer();
        while (true){
             System.out.printf(PROMPT);
@@ -37,7 +40,7 @@ public class Repl {
                continue;
            }
            Evaluator evaluator = new Evaluator();
-           MObject result = evaluator.eval(program);
+           MObject result = evaluator.eval(program,env);
            if (result != null) {
                System.out.println(result.inspect());
            }
