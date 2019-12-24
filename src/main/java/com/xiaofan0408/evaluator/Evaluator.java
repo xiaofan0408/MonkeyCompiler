@@ -8,6 +8,7 @@ import com.xiaofan0408.parser.ast.*;
 
 import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Evaluator {
@@ -55,6 +56,10 @@ public class Evaluator {
             env.set(((LetStatement) node).getName().getValue(),value);
         } else if (node instanceof Identifier) {
             return evalIdentifer(node,env);
+        } else if (node instanceof FunctionLiteral) {
+            List<Identifier> params = ((FunctionLiteral) node).getParameters();
+            BlockStatement body = ((FunctionLiteral) node).getBody();
+            return new MFunction(params,body,env);
         }
         return null;
     }
