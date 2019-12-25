@@ -7,9 +7,7 @@ import com.xiaofan0408.object.impl.*;
 import com.xiaofan0408.parser.ast.*;
 
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Evaluator {
 
@@ -60,8 +58,56 @@ public class Evaluator {
             List<Identifier> params = ((FunctionLiteral) node).getParameters();
             BlockStatement body = ((FunctionLiteral) node).getBody();
             return new MFunction(params,body,env);
+        } else if(node instanceof CallExpression){
+            MObject function = eval(((CallExpression) node).getFunction(),env);
+            if (isError(function)) {
+                return function;
+            }
+            List<MObject> args = evalExpressions(((CallExpression) node).getArguments(),env);
+            if (args.size() == 1 && isError(args.get(0))){
+                return args.get(0);
+            }
+            return applyFunction(function,args);
         }
         return null;
+    }
+
+    private MObject applyFunction(MObject function, List<MObject> args) {
+        if (!(function instanceof MFunction)) {
+            return newError("not a function: %s", function.type());
+        }
+        MFunction fn = (MFunction)function;
+        Environment extendedEnv = extendFunctionEnv(fn, args);
+        MObject evaluated = eval(fn.getBody(), extendedEnv);
+        return unwrapReturnValue(evaluated);
+    }
+
+    private MObject unwrapReturnValue(MObject evaluated) {
+        if (evaluated instanceof MReturnValue) {
+            return ((MReturnValue) evaluated).getValue();
+        }
+        return evaluated;
+    }
+
+    private Environment extendFunctionEnv(MFunction fn, List<MObject> args) {
+        Environment env = new Environment(new HashMap<>(),fn.getEnvironment());
+        List<Identifier> params = fn.getParameters();
+        for (int i=0;i< params.size();i++){
+            env.set(params.get(i).getValue(),args.get(i));
+        }
+        return env;
+    }
+
+    private List<MObject> evalExpressions(List<Expression> arguments, Environment env) {
+        List<MObject> objects = new ArrayList<>();
+        for (Expression expression:arguments) {
+            MObject evaluated = eval(expression,env);
+            if (isError(evaluated)) {
+                return Arrays.asList(evaluated);
+            }
+            objects.add(evaluated);
+        }
+        return objects;
     }
 
     private MObject evalIdentifer(Node node, Environment env) {

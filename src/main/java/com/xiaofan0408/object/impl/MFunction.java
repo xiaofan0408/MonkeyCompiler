@@ -5,6 +5,7 @@ import com.xiaofan0408.object.MObject;
 import com.xiaofan0408.object.MObjectType;
 import com.xiaofan0408.parser.ast.BlockStatement;
 import com.xiaofan0408.parser.ast.Identifier;
+import lombok.Getter;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -12,6 +13,8 @@ import java.util.stream.Collectors;
 /**
  * @author xuzefan  2019/12/24 11:19
  */
+
+@Getter
 public class MFunction implements MObject{
 
     private List<Identifier> parameters;
