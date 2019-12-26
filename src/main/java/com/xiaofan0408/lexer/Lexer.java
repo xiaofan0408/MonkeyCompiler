@@ -116,6 +116,10 @@ public class Lexer {
                 tok = new Token(TokenType.RBRACE, Character.toString(this.ch));
                 break;
             }
+            case '"':{
+                tok = new Token(TokenType.STRING,readString());
+                break;
+            }
             case 0:{
                 tok = new Token(TokenType.EOF,"");
                 break;
@@ -135,6 +139,17 @@ public class Lexer {
         }
         this.readChar();
         return tok;
+    }
+
+    private String readString() {
+        int position = this.position + 1;
+        while (true){
+            readChar();
+            if (this.ch == '"') {
+                break;
+            }
+        }
+        return  this.input.substring(position,this.position);
     }
 
     private String readNumber() {

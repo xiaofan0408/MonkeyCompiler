@@ -40,6 +40,7 @@ public class Parser {
         ParseFnConstant.registerPrefix(TokenType.LPAREN, new GroupedParseFn(this));
         ParseFnConstant.registerPrefix(TokenType.IF,new IfExpressionParseFn(this));
         ParseFnConstant.registerPrefix(TokenType.FUNCTION,new FunctionParseFn(this));
+        ParseFnConstant.registerPrefix(TokenType.STRING, new StringParseFn(this));
 
         ParseFnConstant.registerInfix(TokenType.PLUS, new InfixExpressionParseFn(this));
         ParseFnConstant.registerInfix(TokenType.MINUS, new InfixExpressionParseFn(this));

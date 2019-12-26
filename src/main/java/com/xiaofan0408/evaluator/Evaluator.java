@@ -3,8 +3,10 @@ package com.xiaofan0408.evaluator;
 import com.xiaofan0408.object.Environment;
 import com.xiaofan0408.object.MObject;
 import com.xiaofan0408.object.MObjectType;
+import com.xiaofan0408.object.builtin.BuiltinFunctionContext;
 import com.xiaofan0408.object.impl.*;
 import com.xiaofan0408.parser.ast.*;
+import com.xiaofan0408.util.CommonUtil;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -68,18 +70,23 @@ public class Evaluator {
                 return args.get(0);
             }
             return applyFunction(function,args);
+        } else if (node instanceof StringLiteral) {
+            return new MString(((StringLiteral) node).getValue());
         }
         return null;
     }
 
     private MObject applyFunction(MObject function, List<MObject> args) {
-        if (!(function instanceof MFunction)) {
-            return newError("not a function: %s", function.type());
+        if (function instanceof MFunction) {
+            MFunction fn = (MFunction)function;
+            Environment extendedEnv = extendFunctionEnv(fn, args);
+            MObject evaluated = eval(fn.getBody(), extendedEnv);
+            return unwrapReturnValue(evaluated);
+        } else if (function instanceof MBuiltin) {
+            return ((MBuiltin)function).getFn().apply(args);
         }
-        MFunction fn = (MFunction)function;
-        Environment extendedEnv = extendFunctionEnv(fn, args);
-        MObject evaluated = eval(fn.getBody(), extendedEnv);
-        return unwrapReturnValue(evaluated);
+
+        return CommonUtil.newError("not a function: %s", function.type());
     }
 
     private MObject unwrapReturnValue(MObject evaluated) {
@@ -112,10 +119,14 @@ public class Evaluator {
 
     private MObject evalIdentifer(Node node, Environment env) {
         MObject value = env.get(((Identifier)node).getValue());
-        if (value==null) {
-            return newError("identifier not found: " +((Identifier)node).getValue());
+        if (value!=null) {
+            return value;
         }
-        return value;
+        MObject builtin = BuiltinFunctionContext.get(((Identifier)node).getValue());
+        if (builtin != null) {
+            return builtin;
+        }
+        return CommonUtil.newError("identifier not found: " +((Identifier)node).getValue());
     }
 
     private MObject evalBlockStatement(BlockStatement blockStatement,Environment env) {
@@ -159,17 +170,30 @@ public class Evaluator {
     private MObject evalInfixExpression(String operator, MObject left, MObject right) {
         if (left.type() == MObjectType.INTEGER_OBJ && right.type() == MObjectType.INTEGER_OBJ) {
             return evalIntegerInfixExpression(operator,left,right);
-        } else if (operator.equals("==")){
+        } else if (left.type() == MObjectType.STRING_OBJ && right.type() == MObjectType.STRING_OBJ) {
+            return evalStringInfixExpression(operator, left, right);
+        }else if (operator.equals("==")){
             return MBoolean.valueOf(left == right);
         } else if(operator.equals("!=")) {
             return MBoolean.valueOf(left != right);
         }else if (left.type() != right.type()) {
-            return newError("type mismatch: %s %s %s",
+            return CommonUtil.newError("type mismatch: %s %s %s",
                     left.type(), operator, right.type());
         } else{
-            return newError("unknown operator: %s %s %s",
+            return CommonUtil.newError("unknown operator: %s %s %s",
                     left.type(), operator, right.type());
         }
+    }
+
+    private MObject evalStringInfixExpression(String operator, MObject left, MObject right) {
+        if (!operator.equals("+")) {
+            return CommonUtil.newError("unknown operator: %s %s %s",
+                    left.type(), operator, right.type());
+        }
+        StringBuffer stringBuffer = new StringBuffer();
+        stringBuffer.append(((MString)left).getValue());
+        stringBuffer.append(((MString)right).getValue());
+        return new MString(stringBuffer.toString());
     }
 
     private MObject evalIntegerInfixExpression(String operator, MObject left, MObject right) {
@@ -203,7 +227,7 @@ public class Evaluator {
             }
 
             default:{
-                return newError("unknown operator: %s %s %s",
+                return CommonUtil.newError("unknown operator: %s %s %s",
                         left.type(), operator, right.type());
             }
         }
@@ -231,14 +255,14 @@ public class Evaluator {
                 return evalMinusPrefixOperatorExpression(right);
             }
             default:{
-                return newError("unknown operator: %s%s", operator, right.type());
+                return CommonUtil.newError("unknown operator: %s%s", operator, right.type());
             }
         }
     }
 
     private MObject evalMinusPrefixOperatorExpression(MObject right) {
         if (right.type() != MObjectType.INTEGER_OBJ) {
-            return newError("unknown operator: -%s", right.type());
+            return CommonUtil.newError("unknown operator: -%s", right.type());
         }
         BigDecimal value = ((MInteger)right).getValue();
         return new MInteger(value.negate());
@@ -254,12 +278,6 @@ public class Evaluator {
         } else {
             return MBoolean.FALSE;
         }
-    }
-
-    private MError newError(String format,Object... a) {
-        return new MError(
-                String.format(format,a)
-        );
     }
 
     private boolean isError(MObject object) {

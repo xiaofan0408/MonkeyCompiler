@@ -10,7 +10,10 @@ public enum  MObjectType {
 
     RETURN_VALUE_OBJ ("RETURN_VALUE"),
 
-    FUNCTION_OBJ ("FUNCTION")
+    FUNCTION_OBJ ("FUNCTION"),
+
+    STRING_OBJ("STRING"),
+    BUILTIN_OBJ("BUILTIN")
     ;
 
     private String value;

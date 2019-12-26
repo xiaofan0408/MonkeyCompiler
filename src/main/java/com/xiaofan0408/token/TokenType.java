@@ -41,7 +41,8 @@ public enum  TokenType {
     FALSE    ( 24,"FALSE" ),
     IF       ( 25,"IF" ),
     ELSE     ( 26,"ELSE" ),
-    RETURN   ( 27, "RETURN" );
+    RETURN   ( 27, "RETURN"),
+    STRING   (28,"STRING");
 
     private int code;
     private String value;
